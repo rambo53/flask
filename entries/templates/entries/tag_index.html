@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %} liste tag {% endblock %}
+
+{% block content %} 
+
+<h3>Tags</h3>
+	<ul>
+	{% for tag in tags %}
+        <!-- en premier param la méthode appelé de blueprint, ici detail, puis en second le param de la méthode detail ici le slug-->
+  			<li><a href="{{ url_for('entries.tag_detail', slug=tag.slug) }}">{{ tag.name }}</a></li>
+	{% endfor %}
+</ul>
+
+{% endblock %}

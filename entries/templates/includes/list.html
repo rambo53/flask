@@ -1,0 +1,7 @@
+<h3>Blogs</h3>
+<ul>
+	{% for entry in object_list.items %}
+        <!-- en premier param la méthode appelé de blueprint, ici detail, puis en second le param de la méthode detail ici le slug-->
+  			<li><a href="{{ url_for('entries.detail', slug=entry.slug) }}">{{ entry.title }}</a></li>
+	{% endfor %}
+</ul>

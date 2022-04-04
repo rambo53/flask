@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %} liste tag {% endblock %}
+
+{% block content %} 
+
+<h1>Résultats recherche</h1>
+
+<ul>
+	{% for result in results %}
+  			<li>{{ result.title }}</li>
+	{% endfor %}
+</ul>
+
+{% endblock %}

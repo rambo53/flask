@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %} détails blog {% endblock %}
+
+{% block content %} 
+
+<h2>{{ entry.title }}</h2>
+<p>{{ entry.body }}</p>
+<a class="btn btn-primary" href="#">edit</a> <span>Ne fonctionne pas car pas fait form pour edit</span>
+<a class="btn btn-danger" href="{{ url_for('entries.delete', slug=entry.slug) }}">delete</a>
+
+
+<h3>Tags</h3>
+<ul>
+	{% for tag in entry.tags %}
+        <li><a href="{{ url_for('entries.tag_detail', slug=tag.slug) }}">{{ tag.name }}</a></li><br>
+	{% endfor %}
+</ul>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %} creation {% endblock %}
+
+{% block content %} 
+
+<h2>Creation entry</h2>
+
+<form action="{{ url_for('entries.create') }}" method="post" class="form">
+    {% for field in form %}
+        <div class="form-group">
+            {{ field.label }}
+            <div>
+                {{ field }}
+                
+                {% if field.errors %}
+                    {% for error in field.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="mt-5">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a href="#" class="btn btn-danger">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}
