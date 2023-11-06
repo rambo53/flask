@@ -1,0 +1,108 @@
+Pour pouvoir déployer un projet flask sur un serveur web et le rendre accessible sur le net, je dois passer par un WSGI (web server gateway interface), qui permet d'avoir une interface entre un serveur 
+et une application web python.
+
+On utilisera "gunicorn" qui permettra de faire le lien entre notre serveur web "NGINX" et notre application flask.
+
+NGINX -> GUNICORN -> FLASK
+
+On intall gunicorn dans la venv de notre projet flask :
+- pip install gunicorn
+
+#################################################
+  
+On crée un user pour se connecter à notre serveur plus tard avec les commandes suivantes :
+- adduser rambo
+
+On renseigne le mot de passe de cet utilisateur.
+Pour passer cet utilisateur en privilège sudo :
+- usermod -aG sudo rambo
+
+Puis dans le fichier "/etc/ssh/sshd_config" on décommente la ligne "PasswordAuthentication yes", afin que notre user que l'on a créé soit le seul à pouvoir se connecter à notre serveur.
+Pour activer les modifications on rentre la commande suivante : 
+- systemctl restart sshd
+
+Pour tester de se connecter sur notre serveur :
+- ssh rambo@nom_de_domaine.com
+
+#################################################
+
+On crée un fichier "wsgi.py" dans notre application flask qui contiendra le code suivant :
+
+from main import app # main est le nom de notre fichier qui lance notre application flask dans lequel on déclare app qui est notre application Flask
+
+if __name__ == '__main__':
+  app.run()
+
+Ensuite la commande pour lancer notre application avec gunicorn est la suivante :
+- gunicorn --bind 0.0.0.0:5000 wsgi:app   # wsgi est le nom de notre fichier du dessus et on utilise app en son sein.
+
+#################################################
+
+Maintenant on doit créer un fichier de service "main.service" pour notre application à l'emplacement suivant :
+- /etc/sytemd/sytem/main.service
+
+On rentre les informations suivantes :
+
+[Unit]
+Description=mon beau projet
+After=network.target     # démarre quand le network est ok
+
+[Service]
+User=rambo
+Group=www-data    # standard pour servir des requêtes http
+WorkingDirectory=/home/rambo/easydata    # path où se situe mon application sur le serveur
+Environment="PATH=/home/rambo/venv/bin"
+ExecStart=/home/rambo/venv/bin/gunicorn --workers 3 --bind unix:easydata.sock -m 007 wsgi:app
+
+[Install]
+WantedBy=multi-user.target
+
+#################################################
+
+Une fois le fichier créé on rentre les commandes suivantes pour recharger ces infos sur le serveur :
+- sudo systemctl daemon-reload
+- sudo systemctl start easydata
+- sudo systemctl enable easydata
+
+Et pour vérifier le bon fonctionnement de notre serveur :
+- sudo systemctl status easydata
+
+Gunicorn est maintenant fonctionnel.
+  
+#################################################
+
+Pour intaller NGINX :
+- sudo apt install nginx
+
+Puis on crée un fichier de config pour nginx sur notre serveur à l'adresse suivante :
+- /etc/nginx/sites-available/easydata.conf
+
+Et dans ce fichier on enregistre :
+
+server {
+  listen 80;
+  sever_name easydata.com www.easydata.com;
+
+  location / {
+    include proxy_params;
+    proxy_pass http://unix:/home/rambo/easydata/easydata.sock;
+  }
+}
+
+Enfin on valide ces configurations sur notre serveur avec la commande suivante :
+- sudo ln -s /etc/nginx/sites-available/easydata.conf /etc/nginx/sites-enabled/
+- sudo nginx -t
+- sudo systemctl restart nginx
+
+#################################################
+
+Pour supprimer le port 5000 de développement que l'on peut afficher avec la commande suivante :
+- sudo ufw status
+
+- sudo ufw delete allow 5000
+
+Puis pour autoriser les connexions nginx :
+- sudo ufw allow "Nginx Full"
+
+Pour finir on update les autorisations sur notre dossier contenant notre application :
+- chmod 775 /home/rambo/
