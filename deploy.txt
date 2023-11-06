@@ -1,5 +1,13 @@
-Pour pouvoir déployer un projet flask sur un serveur web et le rendre accessible sur le net, je dois passer par un WSGI (web server gateway interface), qui permet d'avoir une interface entre un serveur 
-et une application web python.
+Pour pouvoir déployer un projet flask sur un serveur web et le rendre accessible sur le net, je dois passer par un WSGI (web server gateway interface), qui permet d'avoir une interface entre un serveur et une application web python.
+
+Cela permettra à nos requètes de répondre plus rapidement lors d'un appel sur notre serveur.
+En effet lors d'une requète sur notre serveur hébergeant notre application, notre serveur doit charger le binaire pour exécuter nos script python et pouvoir renvoyer la réponse.
+
+REQUEST -> LOAD PYTHON -> RESPONSE
+
+Or cette étape de chargement de python est extrèmement couteuse en temps d'exécution.
+Pour palier à cela on utilise un WSGI qui instanciera par défaut 3 instances de notre binaire python et les stockera en ram pour traiter nos requètes plus rapidement.
+On appelle ces instances des "workers".
 
 On utilisera "gunicorn" qui permettra de faire le lien entre notre serveur web "NGINX" et notre application flask.
 
